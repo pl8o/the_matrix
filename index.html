@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Matrix — Interactive Cyberstorm</title>
+<title>The Matrix — Cyberstorm Footer Glasses</title>
 <style>
     body {
         margin: 0;
@@ -19,51 +19,32 @@
         text-shadow: 0 0 4px #fff;
     }
 
-    /* -------------------- BLACK FOOTER -------------------- */
+    /* -------------------- BLACK FOOTER WITH GLASSES -------------------- */
     .footer {
         position: fixed;
         bottom: 0;
         width: 100%;
-        height: 60px; /* adjust height as needed */
+        height: 140px; /* taller footer for lower glasses */
         background: black;
         display: flex;
-        justify-content: center;
+        justify-content: space-evenly; /* spread icons evenly */
         align-items: center;
         z-index: 10;
-        box-shadow: 0 -2px 10px rgba(0,255,0,0.5); /* subtle top glow */
+        box-shadow: 0 -2px 10px rgba(0,255,0,0.5);
+        padding-bottom: 10px; /* extra spacing from bottom */
     }
 
-    .footer a {
-        color: #0f0;
-        margin: 0 15px;
-        text-decoration: none;
-        font-family: monospace;
-        font-size: 18px;
-        position: relative;
+    .footer a img {
+        width: clamp(100px, 16vw, 200px); /* responsive doubled size */
+        height: auto;
         transition: all 0.3s ease;
+        cursor: pointer;
+        filter: drop-shadow(0 0 4px #0f0) drop-shadow(0 0 8px #0ff);
     }
 
-    .footer a::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -5px;
-        right: -5px;
-        bottom: -2px;
-        border-radius: 4px;
-        box-shadow: 0 0 8px #0f0, 0 0 16px #0ff, 0 0 24px #0f0, 0 0 32px #0ff;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-    }
-
-    .footer a:hover::before {
-        opacity: 1;
-    }
-
-    .footer a:hover {
-        color: #0ff;
-        transform: scale(1.15);
+    .footer a img:hover {
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 12px #0f0) drop-shadow(0 0 24px #0ff);
     }
 </style>
 </head>
@@ -71,26 +52,24 @@
 
 <canvas id="matrixCanvas"></canvas>
 
-<!-- Footer Strip -->
+<!-- Footer with Glasses Icons -->
 <div class="footer">
-    <a href="https://link1.com" target="_blank">LINK 1</a>
-    <a href="https://link2.com" target="_blank">LINK 2</a>
-    <a href="https://link3.com" target="_blank">LINK 3</a>
+    <a href="https://link1.com" target="_blank"><img src="glasses.png" alt="Link 1"></a>
+    <a href="https://link2.com" target="_blank"><img src="glasses.png" alt="Link 2"></a>
+    <a href="https://link3.com" target="_blank"><img src="glasses.png" alt="Link 3"></a>
 </div>
 
 <script>
 /* -------------------- SYMBOL SET -------------------- */
 const symbols = [
-    'ᚠ','ᚢ','ᚦ','ᚩ','ᚱ','ᚳ','ᚷ','ᚹ','ᚻ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ', // Norse runes
-    '᚛','᚜','ᚐ','ᚑ','ᚒ','ᚓ','ᚔ','ᚕ','ᚖ','ᚗ','ᚘ','ᚙ','ᚚ','᚛','᚜', // Ogham/Celtic
-    '𒀀','𒀁','𒀂','𒀃','𒀄','𒀅','𒀆','𒀇','𒀈','𒀉','𒀊','𒀋', // Sumerian
-    '☌','☍','⚯','⚰','⚱','⟁','⌖','⛢','⚷','⚸','⯀','⯁','⯂','⯃' // Alien symbols
+    'ᚠ','ᚢ','ᚦ','ᚩ','ᚱ','ᚳ','ᚷ','ᚹ','ᚻ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ',
+    '᚛','᚜','ᚐ','ᚑ','ᚒ','ᚓ','ᚔ','ᚕ','ᚖ','ᚗ','ᚘ','ᚙ','ᚚ','᚛','᚜',
+    '𒀀','𒀁','𒀂','𒀃','𒀄','𒀅','𒀆','𒀇','𒀈','𒀉','𒀊','𒀋',
+    '☌','☍','⚯','⚰','⚱','⟁','⌖','⛢','⚷','⚸','⯀','⯁','⯂','⯃'
 ];
 
 /* -------------------- COLOR SET -------------------- */
-const colors = [
-    '#0f0', '#0ff', '#f0f', '#ff0', '#f00', '#0a0', '#0aa', '#fa0'
-];
+const colors = ['#0f0', '#0ff', '#f0f', '#ff0', '#f00', '#0a0', '#0aa', '#fa0'];
 
 /* -------------------- CANVAS SETUP -------------------- */
 const canvas = document.getElementById('matrixCanvas');
@@ -111,9 +90,18 @@ window.addEventListener('mousemove', (e) => {
     mouse.y = e.clientY;
 });
 
+/* -------------------- CHAIN SPARKS SETUP -------------------- */
+let sparkChains = [];
+function addSparkChain(xIndex) {
+    const length = Math.floor(Math.random()*5 + 3);
+    sparkChains.push({x: xIndex, start: drops[xIndex], length: length, life: length});
+}
+
+/* -------------------- FOOTER ICONS -------------------- */
+const footerIcons = Array.from(document.querySelectorAll('.footer a img'));
+
 /* -------------------- DRAW FUNCTION -------------------- */
 function drawMatrix() {
-    // semi-transparent black for trailing effect
     ctx.fillStyle = "rgba(0,0,0,0.05)";
     ctx.fillRect(0,0,width,height);
 
@@ -126,30 +114,59 @@ function drawMatrix() {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        // avoid drawing under footer (60px)
-        if(y < height - 60){
-            // check distance to mouse
+        // Prevent symbols overlapping footer
+        if(y < height - 140){ 
             const dx = mouse.x - x;
             const dy = mouse.y - y;
             const dist = Math.sqrt(dx*dx + dy*dy);
 
             let sizeFactor = 1;
-            if(dist < 100) { // radius of interaction
-                sizeFactor = 1 + (100 - dist)/150; // scale up when near
+            let alpha = 1;
+
+            if(dist < 120){
+                sizeFactor = 1 + (120 - dist)/150;
+                alpha = 0.7 + Math.random()*0.3;
+
+                if(Math.random() < 0.02) addSparkChain(i);
+            }
+
+            for(let chain of sparkChains){
+                if(i >= chain.x && i < chain.x + chain.length){
+                    alpha = 0.8 + Math.random()*0.4;
+                    sizeFactor = 1 + 0.4*Math.random();
+                }
             }
 
             ctx.fillStyle = color;
+            ctx.globalAlpha = alpha;
             ctx.font = fontSize * sizeFactor + "px monospace";
             ctx.fillText(symbol, x, y);
+            ctx.globalAlpha = 1;
+
+            // -------------------- INTERACTIVE FOOTER GLOW --------------------
+            footerIcons.forEach(icon => {
+                const iconRect = icon.getBoundingClientRect();
+                const iconCenterX = iconRect.left + iconRect.width/2;
+                const iconCenterY = iconRect.top + iconRect.height/2;
+
+                const iconDist = Math.sqrt((x - iconCenterX)**2 + (y - iconCenterY)**2);
+
+                if(iconDist < 120) {
+                    icon.style.filter = `drop-shadow(0 0 12px #0f0) drop-shadow(0 0 24px #0ff)`;
+                } else {
+                    icon.style.filter = `drop-shadow(0 0 4px #0f0) drop-shadow(0 0 8px #0ff)`;
+                }
+            });
         }
 
-        // reset drop randomly when it goes off screen
         if(drops[i] * fontSize > height && Math.random() > 0.975){
             drops[i] = 0;
         }
 
         drops[i]++;
     }
+
+    sparkChains = sparkChains.map(chain => ({...chain, life: chain.life-1})).filter(c => c.life > 0);
 
     requestAnimationFrame(drawMatrix);
 }
