@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Matrix — Colored Runes</title>
+<title>The Matrix — Interactive Cyberstorm</title>
 <style>
     body {
         margin: 0;
@@ -15,7 +15,6 @@
         display: block;
     }
 
-    /* Optional: soft glow for canvas text */
     #matrixCanvas {
         text-shadow: 0 0 4px #fff;
     }
@@ -44,7 +43,6 @@
         transition: all 0.3s ease;
     }
 
-    /* Neon glow on hover */
     .footer a::before {
         content: '';
         position: absolute;
@@ -106,6 +104,13 @@ const fontSize = 24;
 const columns = Math.floor(width / fontSize);
 const drops = Array(columns).fill(0);
 
+/* -------------------- MOUSE POSITION -------------------- */
+let mouse = { x: -1000, y: -1000 };
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
 /* -------------------- DRAW FUNCTION -------------------- */
 function drawMatrix() {
     // semi-transparent black for trailing effect
@@ -117,11 +122,25 @@ function drawMatrix() {
     for(let i = 0; i < drops.length; i++){
         const symbol = symbols[Math.floor(Math.random() * symbols.length)];
         const color = colors[Math.floor(Math.random() * colors.length)];
-        ctx.fillStyle = color;
+
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
 
         // avoid drawing under footer (60px)
-        if(drops[i] * fontSize < height - 60){
-            ctx.fillText(symbol, i * fontSize, drops[i] * fontSize);
+        if(y < height - 60){
+            // check distance to mouse
+            const dx = mouse.x - x;
+            const dy = mouse.y - y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            let sizeFactor = 1;
+            if(dist < 100) { // radius of interaction
+                sizeFactor = 1 + (100 - dist)/150; // scale up when near
+            }
+
+            ctx.fillStyle = color;
+            ctx.font = fontSize * sizeFactor + "px monospace";
+            ctx.fillText(symbol, x, y);
         }
 
         // reset drop randomly when it goes off screen
