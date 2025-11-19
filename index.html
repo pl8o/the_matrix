@@ -19,12 +19,11 @@
         text-shadow: 0 0 4px #fff;
     }
 
-    /* -------------------- BLACK FOOTER WITH GLASSES -------------------- */
     .footer {
         position: fixed;
         bottom: 0;
         width: 100%;
-        height: 160px; /* reduced height */
+        height: 160px;
         background: black;
         display: flex;
         flex-direction: column;
@@ -44,7 +43,7 @@
             0 0 6px #0ff,
             0 0 12px #0ff,
             0 0 18px #0aa;
-        margin-bottom: 20px; /* space between text and glasses */
+        margin-bottom: 30px;
         transition: all 0.1s ease-in-out;
     }
 
@@ -64,18 +63,12 @@
         transform-origin: center center;
         transition: none;
     }
-
-    .footer-icons a img:hover {
-        transform: scale(1.2);
-        filter: drop-shadow(0 0 12px #0f0) drop-shadow(0 0 24px #0ff);
-    }
 </style>
 </head>
 <body>
 
 <canvas id="matrixCanvas"></canvas>
 
-<!-- Footer with Text and Glasses Icons -->
 <div class="footer">
     <div class="footer-text" id="footerText">A GLITCH IN THE MATRIX</div>
     <div class="footer-icons">
@@ -86,7 +79,6 @@
 </div>
 
 <script>
-/* -------------------- SYMBOL SET -------------------- */
 const symbols = [
     'ᚠ','ᚢ','ᚦ','ᚩ','ᚱ','ᚳ','ᚷ','ᚹ','ᚻ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ',
     '᚛','᚜','ᚐ','ᚑ','ᚒ','ᚓ','ᚔ','ᚕ','ᚖ','ᚗ','ᚘ','ᚙ','ᚚ','᚛','᚜',
@@ -94,10 +86,8 @@ const symbols = [
     '☌','☍','⚯','⚰','⚱','⟁','⌖','⛢','⚷','⚸','⯀','⯁','⯂','⯃'
 ];
 
-/* -------------------- COLOR SET -------------------- */
 const colors = ['#0f0', '#0ff', '#f0f', '#ff0', '#f00', '#0a0', '#0aa', '#fa0'];
 
-/* -------------------- CANVAS SETUP -------------------- */
 const canvas = document.getElementById('matrixCanvas');
 const ctx = canvas.getContext('2d');
 let width = window.innerWidth;
@@ -109,37 +99,48 @@ const fontSize = 24;
 const columns = Math.floor(width / fontSize);
 const drops = Array(columns).fill(0);
 
-/* -------------------- MOUSE POSITION -------------------- */
 let mouse = { x: -1000, y: -1000 };
 window.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
 });
 
-/* -------------------- SPARK CHAIN SETUP -------------------- */
 let sparkChains = [];
 function addSparkChain(xIndex) {
     const length = Math.floor(Math.random()*5 + 3);
     sparkChains.push({x: xIndex, start: drops[xIndex], length: length, life: length});
 }
 
-/* -------------------- FOOTER ICONS -------------------- */
 const footerIcons = Array.from(document.querySelectorAll('.footer-icons a img'));
 const footerText = document.getElementById('footerText');
 
-/* -------------------- GLASSES JITTER & PULSE -------------------- */
+// Track hover state
+footerIcons.forEach(icon => {
+    icon.isHovered = false;
+    icon.addEventListener('mouseenter', () => { icon.isHovered = true; });
+    icon.addEventListener('mouseleave', () => { icon.isHovered = false; });
+});
+
+// Glasses jitter & pulse + hover glow
 function pulseGlasses() {
     footerIcons.forEach(icon => {
         const jitterX = (Math.random() - 0.5) * 6;
         const jitterY = (Math.random() - 0.5) * 6;
         const rotate = (Math.random() - 0.5) * 3;
+
+        let filterGlow = 'drop-shadow(0 0 4px #0f0) drop-shadow(0 0 8px #0ff)';
+        if(icon.isHovered){
+            filterGlow = 'drop-shadow(0 0 20px #0f0) drop-shadow(0 0 40px #0ff) drop-shadow(0 0 60px #0ff)';
+        }
+
         icon.style.transform = `translate(${jitterX}px, ${jitterY}px) rotate(${rotate}deg)`;
+        icon.style.filter = filterGlow;
     });
     requestAnimationFrame(pulseGlasses);
 }
 pulseGlasses();
 
-/* -------------------- MATRIX DRAW FUNCTION -------------------- */
+// MATRIX DRAW FUNCTION
 function drawMatrix() {
     ctx.fillStyle = "rgba(0,0,0,0.05)";
     ctx.fillRect(0,0,width,height);
@@ -153,7 +154,7 @@ function drawMatrix() {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        if(y < height - 160){ // leave space for footer
+        if(y < height - 160){
             const dx = mouse.x - x;
             const dy = mouse.y - y;
             const dist = Math.sqrt(dx*dx + dy*dy);
@@ -187,11 +188,9 @@ function drawMatrix() {
 
                 const iconDist = Math.sqrt((x - iconCenterX)**2 + (y - iconCenterY)**2);
                 if(iconDist < 120) {
-                    icon.style.filter = `drop-shadow(0 0 12px #0f0) drop-shadow(0 0 24px #0ff)`;
                     footerText.style.transform = `scale(${1 + Math.random()*0.04})`;
                     footerText.style.opacity = 0.7 + Math.random()*0.3;
                 } else {
-                    icon.style.filter = `drop-shadow(0 0 4px #0f0) drop-shadow(0 0 8px #0ff)`;
                     footerText.style.transform = 'scale(1)';
                     footerText.style.opacity = 1;
                 }
@@ -201,7 +200,6 @@ function drawMatrix() {
         if(drops[i] * fontSize > height && Math.random() > 0.975){
             drops[i] = 0;
         }
-
         drops[i]++;
     }
 
@@ -211,7 +209,6 @@ function drawMatrix() {
 }
 drawMatrix();
 
-/* -------------------- HANDLE RESIZE -------------------- */
 window.addEventListener('resize', () => {
     width = window.innerWidth;
     height = window.innerHeight;
@@ -222,4 +219,5 @@ window.addEventListener('resize', () => {
 
 </body>
 </html>
+
 
