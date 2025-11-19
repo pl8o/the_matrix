@@ -1,86 +1,89 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-
+<html lang="en">
 <head>
-
-  <link rel="stylesheet" type="text/css" href="css/styles.css">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="keywords" content="Fairytale, Armageddon">
-  <meta name="author" content="Rory Williams">
-  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap"
-  rel="stylesheet">
-  <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
-  <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Matrix — Alien Runes</title>
 <style>
-#canv{
-  z-index:1;
-}
-#title{
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+    }
 
-}
+    canvas {
+        display: block;
+    }
 
+    /* Optional: glowing effect for symbols */
+    #matrixCanvas {
+        text-shadow:
+            0 0 4px #0f0,
+            0 0 8px #0f0,
+            0 0 12px #0f0;
+    }
 </style>
+</head>
+<body>
 
-
-
-<title>THE MATRIX</title>
-  </head>
-  <body style="background-color:black;">
-
-
-
-    <canvas width="1200vw" height="1200vw" id="canv" />
-
+<canvas id="matrixCanvas"></canvas>
 
 <script>
-// Get the canvas node and the drawing context
-const canvas = document.getElementById('canv');
+/* -------------------- MATRIX SYMBOLS -------------------- */
+// Ancient and invented symbol set
+const symbols = [
+    'ᚠ','ᚢ','ᚦ','ᚩ','ᚱ','ᚳ','ᚷ','ᚹ','ᚻ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ', // Norse runes
+    '᚛','᚜','ᚐ','ᚑ','ᚒ','ᚓ','ᚔ','ᚕ','ᚖ','ᚗ','ᚘ','ᚙ','ᚚ','᚛','᚜', // Ogham/Celtic
+    '𒀀','𒀁','𒀂','𒀃','𒀄','𒀅','𒀆','𒀇','𒀈','𒀉','𒀊','𒀋', // Sumerian
+    '☌','☍','⚯','⚰','⚱','⟁','⌖','⛢','⚷','⚸','⯀','⯁','⯂','⯃' // invented alien symbols
+];
+
+/* -------------------- CANVAS SETUP -------------------- */
+const canvas = document.getElementById('matrixCanvas');
 const ctx = canvas.getContext('2d');
 
-// set the width and height of the canvas
-const w = canvas.width = document.body.offsetWidth;
-const h = canvas.height = document.body.offsetHeight;
+let width = window.innerWidth;
+let height = window.innerHeight;
+canvas.width = width;
+canvas.height = height;
 
-// draw a black rectangle of width and height same as that of the canvas
-ctx.fillStyle = '#000';
-ctx.fillRect(0, 0, w, h);
+/* -------------------- COLUMN SETUP -------------------- */
+const fontSize = 24;
+const columns = Math.floor(width / fontSize);
+const drops = Array(columns).fill(0);
 
-const cols = Math.floor(w / 20) + 1;
-const ypos = Array(cols).fill(0);
-function matrix () {
-  // Draw a semitransparent black rectangle on top of previous drawing
-  ctx.fillStyle = '#0001';
-  ctx.fillRect(0, 0, w, h);
+/* -------------------- DRAW FUNCTION -------------------- */
+function drawMatrix() {
+    // semi-transparent black to create trailing effect
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, width, height);
 
-  // Set color to green and font to 15pt monospace in the drawing context
-  ctx.fillStyle = '#0f0';
-  ctx.font = '15pt monospace';
+    ctx.fillStyle = "#0f0"; // green
+    ctx.font = fontSize + "px monospace";
 
-  // for each column put a random character at the end
-  ypos.forEach((y, ind) => {
-    // generate a random character
-    const text = String.fromCharCode(Math.random() * 128);
+    for(let i = 0; i < drops.length; i++){
+        const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+        ctx.fillText(symbol, i * fontSize, drops[i] * fontSize);
 
-    // x coordinate of the column, y coordinate is already given
-    const x = ind * 20;
-    // render the character at (x, y)
-    ctx.fillText(text, x, y);
+        // Reset drop to top randomly
+        if(drops[i] * fontSize > height && Math.random() > 0.975){
+            drops[i] = 0;
+        }
+        drops[i]++;
+    }
 
-    // randomly reset the end of the column if it's at least 100px high
-    if (y > 100 + Math.random() * 10000) ypos[ind] = 0;
-    // otherwise just move the y coordinate for the column 20px down,
-    else ypos[ind] = y + 20;
-  });
+    requestAnimationFrame(drawMatrix);
 }
+drawMatrix();
 
-// render the animation at 20 FPS.
-setInterval(matrix, 50);
-
-
+/* -------------------- HANDLE RESIZE -------------------- */
+window.addEventListener('resize', () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+});
 </script>
 
-
-
-  </body>
+</body>
 </html>
