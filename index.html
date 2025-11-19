@@ -14,11 +14,6 @@
     canvas {
         display: block;
     }
-
-    /* Optional: soft glow for canvas text */
-    #matrixCanvas {
-        text-shadow: 0 0 4px #fff;
-    }
 </style>
 </head>
 <body>
@@ -51,9 +46,12 @@ const fontSize = 24;
 const columns = Math.floor(width / fontSize);
 const drops = Array(columns).fill(0);
 
+/* -------------------- SLOW CASCADE SPEED -------------------- */
+const speedFactor = 0.5; // 0.5 = half speed, lower = slower
+
 /* -------------------- DRAW FUNCTION -------------------- */
 function drawMatrix() {
-    // semi-transparent black for trailing effect
+    // semi-transparent black to create trailing effect
     ctx.fillStyle = "rgba(0,0,0,0.05)";
     ctx.fillRect(0,0,width,height);
 
@@ -69,7 +67,8 @@ function drawMatrix() {
         if(drops[i] * fontSize > height && Math.random() > 0.975){
             drops[i] = 0;
         }
-        drops[i]++;
+
+        drops[i] += speedFactor; // slower cascade
     }
 
     requestAnimationFrame(drawMatrix);
